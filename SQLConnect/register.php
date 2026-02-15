@@ -44,8 +44,9 @@
 	// add user to the table
 	$insertuserquery = "INSERT INTO users (email, firstname, lastname, username, hash, salt) VALUES ('" . $email . "', '" . $firstname . "', '" . $lastname . "', '" . $username . "', '" . $hash . "', '" . $salt . "');";
 	// $insertuserquery = "INSERT INTO users (username, hash, salt) VALUES ('" . $username . "', '" . $hash . "', '" . $salt . "');";
-	// mysqli_query($con, $insertuserquery) or die("6: Insert user query failed");
+	mysqli_query($con, $insertuserquery) or die("6: Insert user query failed");
 
 	echo "0";
+
 
 ?>
