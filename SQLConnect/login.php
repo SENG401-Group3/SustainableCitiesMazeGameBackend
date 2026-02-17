@@ -1,47 +1,34 @@
 <?php
 
-	$con = mysqli_connect('localhost', 'root', 'root', 'sustainablitymaze');
+$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
 
-	// check connection
-	if (mysqli_connect_errno())
-	{
-		echo "1: Connection failed";
-		exit();
-	}
+if (mysqli_connect_errno())
+{
+    echo "1: Connection failed";
+    exit();
+}
 
-	$username = $_POST["username"];
-	$password = $_POST["password"];
+$username = $_POST["username"];
+$password = $_POST["password"];
 
-	// check if username already exists
-	$namecheckquery = "SELECT username, salt, hash, score FROM users WHERE username='" . $username . "';";
+$query = "SELECT password FROM users WHERE username='" . $username . "';";
+$result = mysqli_query($con, $query);
 
-	$namecheck = mysqli_query($con, $namecheckquery) or die("4: Name check query failed");
+if (mysqli_num_rows($result) != 1)
+{
+    echo "7: No user found";
+    exit();
+}
 
-	if (mysqli_num_rows($namecheck) != 1)
-	{
-		if (mysqli_num_rows($namecheck) == 0)
-		{
-			echo "7: No user with name exists";
-		}
-		else
-		{
-			echo "8: Multiple users with the same name exist";	// should not happen but just to be safe
-		}
-		exit();
-	}
+$row = mysqli_fetch_assoc($result);
+$storedHash = $row["password"];
 
-	// get login info from query
-	$logininfo = mysqli_fetch_assoc($namecheck);
-	$salt = $logininfo["salt"];
-	$hash = $logininfo["hash"];
-
-	$loginhash = crypt($password, $salt);
-	if ($hash != $loginhash)
-	{
-		echo "9: Incorrect password";
-		exit();
-	}
-
-	echo "0\t" . $logininfo["score"];
-
+if (password_verify($password, $storedHash))
+{
+    echo "0";
+}
+else
+{
+    echo "9: Incorrect password";
+}
 ?>
