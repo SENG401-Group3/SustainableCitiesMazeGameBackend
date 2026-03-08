@@ -1,52 +1,39 @@
 <?php
 
-	$con = mysqli_connect('localhost', 'root', 'root', 'sustainablitymaze');
+$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
 
-	// check connection
-	if (mysqli_connect_errno())
-	{
-		echo "1: Connection failed";
-		exit();
-	}
+// Check connection
+if (mysqli_connect_errno())
+{
+    echo "1: Connection failed";
+    exit();
+}
 
-	$email = $_POST["email"];
-	$firstname = $_POST["firstname"];
-	$lastname = $_POST["lastname"];
-	$username = $_POST["username"];
-	$password = $_POST["password"];
+$firstname = $_POST["firstname"];
+$lastname = $_POST["lastname"];
+$username = $_POST["username"];
+$password = $_POST["password"];
 
-	// check if email alaready exists
-	$emailcheckquery = "SELECT email FROM users WHERE email='" . $email . "';";
+// Check if username already exists
+$namecheckquery = "SELECT username FROM users WHERE username='" . $username . "';";
 
-	$emailcheck = mysqli_query($con, $emailcheckquery) or die("2: Email check query failed");
+$namecheck = mysqli_query($con, $namecheckquery) or die("2: Name check query failed");
 
-	if (mysqli_num_rows($emailcheck) > 0)
-	{
-		echo "3: Email already exists";
-		exit();
-	}
+if (mysqli_num_rows($namecheck) > 0)
+{
+    echo "3: Username already exists";
+    exit();
+}
 
-	// check if username already exists
-	$namecheckquery = "SELECT username FROM users WHERE username='" . $username . "';";
+// Secure password hashing (modern method)
+$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-	$namecheck = mysqli_query($con, $namecheckquery) or die("4: Name check query failed");
+// Insert new user
+$insertuserquery = "INSERT INTO users (firstname, lastname, username, password)
+                    VALUES ('" . $firstname . "', '" . $lastname . "', '" . $username . "', '" . $hashedPassword . "');";
 
-	if (mysqli_num_rows($namecheck) > 0)
-	{
-		echo "5: Username already exists";
-		exit();
-	}
+mysqli_query($con, $insertuserquery) or die("4: Insert user query failed");
 
-	// basic password security
-	$salt = "\$5\$rounds=5000\$" . "electroplating" . $username . "\$";
-	$hash = crypt($password, $salt);
-
-	// add user to the table
-	$insertuserquery = "INSERT INTO users (email, firstname, lastname, username, hash, salt) VALUES ('" . $email . "', '" . $firstname . "', '" . $lastname . "', '" . $username . "', '" . $hash . "', '" . $salt . "');";
-	// $insertuserquery = "INSERT INTO users (username, hash, salt) VALUES ('" . $username . "', '" . $hash . "', '" . $salt . "');";
-	mysqli_query($con, $insertuserquery) or die("6: Insert user query failed");
-
-	echo "0";
-
+echo "0"; // success
 
 ?>
