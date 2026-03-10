@@ -1,34 +1,47 @@
 <?php
 
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+    $host = "localhost";
+    $username = "root";
+    $password = "root";
+    $db_name = "sustainablitymaze";
 
-if (mysqli_connect_errno())
-{
-    echo "1: Connection failed";
-    exit();
-}
+    $con = mysqli_connect($host, $username, $password, $db_name);
 
-$username = $_POST["username"];
-$password = $_POST["password"];
+    if (mysqli_connect_errno())
+    {
+        echo "1: Failed to connect to server";
+        exit();
+    }
 
-$query = "SELECT password FROM users WHERE username='" . $username . "';";
-$result = mysqli_query($con, $query);
+    $username = $_POST["username"];
+    $usernameclean = filter_var($username, FILTER_SANITIZE_STRING);
+    $password = $_POST["password"];
 
-if (mysqli_num_rows($result) != 1)
-{
-    echo "7: No user found";
-    exit();
-}
+    if ($usernameclean != $username)
+    {
+        echo "-1: Invalid characters in input. Possible SQL Injection attempt";
+        exit();
+    }
 
-$row = mysqli_fetch_assoc($result);
-$storedHash = $row["password"];
+    $query = "SELECT password FROM users WHERE username='" . $usernameclean . "';";
+    $result = mysqli_query($con, $query);
 
-if (password_verify($password, $storedHash))
-{
-    echo "0";
-}
-else
-{
-    echo "9: Incorrect password";
-}
+    if (mysqli_num_rows($result) != 1)
+    {
+        echo "5: No user found";
+        exit();
+    }
+
+    $row = mysqli_fetch_assoc($result);
+    $storedHash = $row["password"];
+
+    if (password_verify($password, $storedHash))
+    {
+        echo "0";
+    }
+    else
+    {
+        echo "6: Incorrect password";
+    }
+
 ?>

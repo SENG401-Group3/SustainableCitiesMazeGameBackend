@@ -1,17 +1,22 @@
 <?php
 
-	$con = mysqli_connect('localhost', 'root', 'root', 'sustainablitymaze');
+	$host = "localhost";
+    $username = "root";
+    $password = "root";
+    $db_name = "sustainablitymaze";
+
+    $con = mysqli_connect($host, $username, $password, $db_name);
 
 	// check connection
 	if (mysqli_connect_errno())
 	{
-		echo "1: Connection failed";
+		echo "1: Failed to connect to server";
 		exit();
 	}
 
 	// fetch usernames and high scores from db
 	$gethighscoresquery = "SELECT username, highscore FROM users ORDER BY highscore DESC;";
-	$gethighscores = mysqli_query($con, $gethighscoresquery) or die("10: Get highscores query failed");
+	$gethighscores = mysqli_query($con, $gethighscoresquery) or die("7: Get highscores query failed");
 
 	// Process the result set
 	if ($gethighscores->num_rows > 0)
@@ -24,7 +29,7 @@
 	}
 	else
 	{
-		echo "11: No results found";
+		echo "8: No results found";
 		exit();
 	}
 

@@ -8,7 +8,7 @@ $dbname = "sustainablitymaze";
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die("1: Connection failed: " . $conn->connect_error);
 }
 
 $currentUsername = $_POST["currentUsername"];
@@ -25,7 +25,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    echo "1"; // meaans username already taken
+    echo "3: Username already exists"; // meaans username already taken
     exit();
 }
 
