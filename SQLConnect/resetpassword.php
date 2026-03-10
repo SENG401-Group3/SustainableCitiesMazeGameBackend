@@ -33,11 +33,12 @@
     else
     {
     	$hashedPassword = password_hash($newpassword, PASSWORD_DEFAULT);
-    	$resetpasswordquery = "UPDATE users SET password = " . $hashedPassword . " WHERE username = " . $username . ";";
+    	$resetpasswordquery = "UPDATE users SET password = '" . $hashedPassword . "' WHERE username = '" . $username . "';";
 
     	mysqli_query($con, $resetpasswordquery) or die("13: Reset password query failed");
     }
 
 	echo "0";
+
 
 ?>
