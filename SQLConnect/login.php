@@ -19,8 +19,7 @@
 
     if ($usernameclean != $username)
     {
-        echo "-1: Invalid characters in input. Possible SQL Injection attempt";
-        exit();
+        die("-1: Invalid characters in input. Possible SQL Injection attempt");
     }
 
     $query = "SELECT password FROM users WHERE username='" . $usernameclean . "';";
