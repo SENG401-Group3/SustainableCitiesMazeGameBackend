@@ -34,6 +34,22 @@ $insertuserquery = "INSERT INTO users (firstname, lastname, username, password)
 
 mysqli_query($con, $insertuserquery) or die("4: Insert user query failed");
 
+//initiailize city progress for new user
+$getuseridquery = "SELECT id FROM users WHERE username='" . $username . "';";
+$getuserid = mysqli_query($con, $getuseridquery) or die("5: Get user ID query failed");
+
+if (mysqli_num_rows($getuserid) != 1)
+{
+    echo "6: User not found after insertion";
+    exit();
+}
+
+$row = mysqli_fetch_assoc($getuserid);
+$userid = $row["id"];
+
+$initializeprogressquery = "UPDATE users SET city=0, score=0 WHERE id=" . $userid . ";";
+mysqli_query($con, $initializeprogressquery) or die("7: Initialize progress query failed");
+
 echo "0"; // success
 
 ?>
