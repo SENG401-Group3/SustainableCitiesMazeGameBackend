@@ -1,15 +1,17 @@
 <?php
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sustainablitymaze";
+// $servername = "localhost";
+// $username = "root";
+// $password = "";
+// $dbname = "sustainablitymaze";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// $conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($conn->connect_error) {
-    die("1: Connection failed: " . $conn->connect_error);
-}
+// if ($conn->connect_error) {
+//     die("Connection failed: " . $conn->connect_error);
+// }
+
+require_once 'db.php';
 
 $currentUsername = $_POST["currentUsername"];
 $firstname = $_POST["firstname"];

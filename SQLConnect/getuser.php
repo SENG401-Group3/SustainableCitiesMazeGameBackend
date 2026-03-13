@@ -1,12 +1,14 @@
 <?php
 header('Content-Type: application/json');
 
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+// $con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
 
-if (mysqli_connect_errno()) {
-    echo json_encode(["error" => "Connection failed"]);
-    exit();
-}
+// if (mysqli_connect_errno()) {
+//     echo json_encode(["error" => "Connection failed"]);
+//     exit();
+// }
+
+require_once 'db.php';
 
 $username = $_POST["username"];
 

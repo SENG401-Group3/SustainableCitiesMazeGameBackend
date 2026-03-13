@@ -1,17 +1,19 @@
 <?php
 
-    $host = "localhost";
-    $username = "root";
-    $password = "root";
-    $db_name = "sustainablitymaze";
+    // $host = "localhost";
+    // $username = "root";
+    // $password = "root";
+    // $db_name = "sustainablitymaze";
 
-    $con = mysqli_connect($host, $username, $password, $db_name);
+    // $con = mysqli_connect($host, $username, $password, $db_name);
 
-    if (mysqli_connect_errno())
-    {
-        echo "1: Failed to connect to server";
-        exit();
-    }
+    // if (mysqli_connect_errno())
+    // {
+    //     echo "1: Failed to connect to server";
+    //     exit();
+    // }
+
+    require_once 'db.php';
 
     $username = $_POST["username"];
     $usernameclean = filter_var($username, FILTER_SANITIZE_STRING);
