@@ -1,15 +1,17 @@
 <?php
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "sustainablitymaze";
+// $servername = "localhost";
+// $username = "root";
+// $password = "";
+// $dbname = "sustainablitymaze";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+// $conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+// if ($conn->connect_error) {
+//     die("Connection failed: " . $conn->connect_error);
+// }
+
+require_once 'db.php';
 
 $currentUsername = $_POST["currentUsername"];
 $firstname = $_POST["firstname"];
@@ -25,7 +27,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    echo "1"; // meaans username already taken
+    echo "3: Username already exists"; // meaans username already taken
     exit();
 }
 

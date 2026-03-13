@@ -1,10 +1,12 @@
 <?php
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+// $con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
 
-if (mysqli_connect_errno()) {
-    echo "1: Connection failed";
-    exit();
-}
+// if (mysqli_connect_errno()) {
+//     echo "1: Connection failed";
+//     exit();
+// }
+
+require_once 'db.php';
 
 $username = $_POST["username"];
 $points = intval($_POST["points"]);

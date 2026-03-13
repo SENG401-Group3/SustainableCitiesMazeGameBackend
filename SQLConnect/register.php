@@ -1,39 +1,60 @@
 <?php
 
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+// $host = "localhost";
+// $username = "root";
+// $password = "root";
+// $db_name = "sustainablitymaze";
 
-// Check connection
-if (mysqli_connect_errno())
-{
-    echo "1: Connection failed";
-    exit();
-}
+// $con = mysqli_connect($host, $username, $password, $db_name);
 
-$firstname = $_POST["firstname"];
-$lastname = $_POST["lastname"];
-$username = $_POST["username"];
-$password = $_POST["password"];
+// if (mysqli_connect_errno())
+// {
+//     echo "1: Failed to connect to server";
+//     exit();
+// }
 
-// Check if username already exists
-$namecheckquery = "SELECT username FROM users WHERE username='" . $username . "';";
+require_once 'db.php';
 
-$namecheck = mysqli_query($con, $namecheckquery) or die("2: Name check query failed");
+    // Check connection
+    if (mysqli_connect_errno())
+    {
+        echo "1: Failed to connect to server";
+        exit();
+    }
 
-if (mysqli_num_rows($namecheck) > 0)
-{
-    echo "3: Username already exists";
-    exit();
-}
+    $firstname = mysqli_real_escape_string($con, $_POST["firstname"]);
+    $firstnameclean = filter_var($firstname, FILTER_SANITIZE_STRING);
+    $lastname = mysqli_real_escape_string($con, $_POST["lastname"]);
+    $lastnameclean = filter_var($lastname, FILTER_SANITIZE_STRING);
+    $username = mysqli_real_escape_string($con, $_POST["username"]);
+    $usernameclean = filter_var($username, FILTER_SANITIZE_STRING);
+    $password = $_POST["password"];
 
-// Secure password hashing (modern method)
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    if ($firstnameclean != $firstname || $lastnameclean != $lastname || $usernameclean != $username)
+    {
+        die("-1: Invalid characters in input. Possible SQL Injection attempt");
+    }
 
-// Insert new user
-$insertuserquery = "INSERT INTO users (firstname, lastname, username, password)
-                    VALUES ('" . $firstname . "', '" . $lastname . "', '" . $username . "', '" . $hashedPassword . "');";
+    // Check if username already exists
+    $namecheckquery = "SELECT username FROM users WHERE username='" . $usernameclean . "';";
 
-mysqli_query($con, $insertuserquery) or die("4: Insert user query failed");
+    $namecheck = mysqli_query($con, $namecheckquery) or die("2: Name check query failed");
 
-echo "0"; // success
+    if (mysqli_num_rows($namecheck) > 0)
+    {
+        echo "3: Username already exists";
+        exit();
+    }
+
+    // Secure password hashing (modern method)
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    // Insert new user
+    $insertuserquery = "INSERT INTO users (firstname, lastname, username, password)
+                        VALUES ('" . $firstnameclean . "', '" . $lastnameclean . "', '" . $usernameclean . "', '" . $hashedPassword . "');";
+
+    mysqli_query($con, $insertuserquery) or die("4: Insert user query failed");
+
+    echo "0"; // success
 
 ?>
