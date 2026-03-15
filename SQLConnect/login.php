@@ -47,7 +47,7 @@
         echo "6: Incorrect password";
     }
 
-    $stemt->close();
+    $stmt->close();
     $con->close();
 ?>
 
