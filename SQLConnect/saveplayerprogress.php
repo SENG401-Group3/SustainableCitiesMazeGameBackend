@@ -4,7 +4,6 @@
     $userid = (int)($_POST["userid"] ?? 0);
     $citynumber = trim($_POST["citynumber"] ?? "");
     $score = (int)($_POST["score"] ?? 0);
-    $speedboosts = (int)($_POST["speedboosts"] ?? 0);
 
     if ($userid <= 0 || $citynumber === "") {
         echo "2: Missing required fields";
@@ -23,7 +22,7 @@
     $cityColumn = "city" . $citynumber . "score";
 
     // Dynamic column name is safe here because city number was validated strictly
-    $query = "UPDATE users SET $cityColumn = ?, speedboosts = ? WHERE id = ?";
+    $query = "UPDATE users SET $cityColumn = ? WHERE id = ?";
     $stmt = $con->prepare($query);
 
     if (!$stmt) {
@@ -32,7 +31,7 @@
         exit();
     }
 
-    $stmt->bind_param("iii", $score, $speedboosts, $userid);
+    $stmt->bind_param("iii", $score, $userid);
 
     if ($stmt->execute()) {
         if ($stmt->affected_rows > 0) {
