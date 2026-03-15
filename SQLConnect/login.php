@@ -1,42 +1,44 @@
 <?php
-
-    // $host = "localhost";
-    // $username = "root";
-    // $password = "root";
-    // $db_name = "sustainablitymaze";
-
-    // $con = mysqli_connect($host, $username, $password, $db_name);
-
-    // if (mysqli_connect_errno())
-    // {
-    //     echo "1: Failed to connect to server";
-    //     exit();
-    // }
-
+    // import the database connection
     require_once 'db.php';
 
-    $username = $_POST["username"];
-    $usernameclean = filter_var($username, FILTER_SANITIZE_STRING);
-    $password = $_POST["password"];
+    $username = $_POST["username"] ?? "";
+    $password = $_POST["password"] ?? "";
 
-    if ($usernameclean != $username)
+    if ($username === "" || $password === "")
     {
-        die("-1: Invalid characters in input. Possible SQL Injection attempt");
-    }
-
-    $query = "SELECT password FROM users WHERE username='" . $usernameclean . "';";
-    $result = mysqli_query($con, $query);
-
-    if (mysqli_num_rows($result) != 1)
-    {
-        echo "5: No user found";
+        echo "2: Missing username or password";
+        //close the connection to the database
+        $con->close();
         exit();
     }
 
-    $row = mysqli_fetch_assoc($result);
+    $query = "SELECT password FROM users WHERE username = ?";
+    $stmt = $con->prepare($query);
+
+    if(!$stmt)
+    {
+        echo "3: Failed to prepare statement";
+        $con->close();
+        exit();
+    }
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Check if a user was found
+    if($result->num_rows !== 1)
+    {
+        echo "5: No user found.";
+        $stmt->close();
+        $con->close();
+        exit();
+    }
+
+    $row = $result->fetch_assoc();
     $storedHash = $row["password"];
 
-    if (password_verify($password, $storedHash))
+    if(password_verify($password, $storedHash))
     {
         echo "0";
     }
@@ -45,4 +47,8 @@
         echo "6: Incorrect password";
     }
 
+    $stmt->close();
+    $con->close();
 ?>
+
+
