@@ -1,44 +1,63 @@
 <?php
+	require_once 'db.php';
 
-	$con = mysqli_connect('localhost', 'root', 'root', 'sustainablitymaze');
+	$username = trim($_POST["username"] ?? "");
+	$newpassword = $_POST["newpassword"] ?? "";
+	$confirmpassword = $_POST["confirmpassword"] ?? "";
 
-	// check connection
-	if (mysqli_connect_errno())
-	{
-		echo "1: Connection failed";
+	if ($username === "" || $newpassword === "" || $confirmpassword === "") {
+		echo "2: Missing required fields";
+		$con->close();
 		exit();
 	}
 
-	$username = $_POST["username"];
-	$newpassword = $_POST["newpassword"];
-	$confirmpassword = $_POST["confirmpassword"];
+	if ($newpassword !== $confirmpassword) {
+		echo "12: Password fields are non-matching";
+		$con->close();
+		exit();
+	}
 
-	// Check if username already exists
-    $namecheckquery = "SELECT username FROM users WHERE username='" . $username . "';";
+	// Make sure user exists
+	$checkQuery = "SELECT username FROM users WHERE username = ?";
+	$stmt = $con->prepare($checkQuery);
 
-    $namecheck = mysqli_query($con, $namecheckquery) or die("2: Name check query failed");
+	if (!$stmt) {
+		echo "3: Query preparation failed";
+		$con->close();
+		exit();
+	}
 
-    if (mysqli_num_rows($namecheck) > 0)
-    {
-        echo "3: Username already exists";
-        exit();
-    }
+	$stmt->bind_param("s", $username);
+	$stmt->execute();
+	$result = $stmt->get_result();
 
-    // Check if the password fields are matching
-    if ($newpassword != $confirmpassword)
-    {
-    	echo "12: Password fields are non-matching";
-    	exit();
-    }
-    else
-    {
-    	$hashedPassword = password_hash($newpassword, PASSWORD_DEFAULT);
-    	$resetpasswordquery = "UPDATE users SET password = '" . $hashedPassword . "' WHERE username = '" . $username . "';";
+	if ($result->num_rows !== 1) {
+		echo "5: No user found";
+		$stmt->close();
+		$con->close();
+		exit();
+	}
+	$stmt->close();
 
-    	mysqli_query($con, $resetpasswordquery) or die("13: Reset password query failed");
-    }
+	$hashedPassword = password_hash($newpassword, PASSWORD_DEFAULT);
 
-	echo "0";
+	$updateQuery = "UPDATE users SET password = ? WHERE username = ?";
+	$stmt = $con->prepare($updateQuery);
 
+	if (!$stmt) {
+		echo "4: Update preparation failed";
+		$con->close();
+		exit();
+	}
 
+	$stmt->bind_param("ss", $hashedPassword, $username);
+
+	if ($stmt->execute()) {
+		echo "0";
+	} else {
+		echo "13: Reset password query failed";
+	}
+
+	$stmt->close();
+	$con->close();
 ?>
