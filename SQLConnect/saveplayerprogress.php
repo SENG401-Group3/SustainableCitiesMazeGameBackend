@@ -1,40 +1,48 @@
 <?php
-
-    // $host = "localhost";
-    // $username = "root";
-    // $password = "root";
-    // $db_name = "sustainablitymaze";
-
-    // $con = mysqli_connect($host, $username, $password, $db_name);
-
-    // if (mysqli_connect_errno())
-    // {
-    //     echo "1: Failed to connect to server";
-    //     exit();
-    // }
-
     require_once 'db.php';
 
-    $username = $_POST["username"];
-    $citynumber = $_POST["citynumber"];
-    $score = $_POST["score"];
-    $speedboosts = $_POST["speedboosts"];
+    $userid = (int)($_POST["userid"] ?? 0);
+    $citynumber = trim($_POST["citynumber"] ?? "");
+    $score = (int)($_POST["score"] ?? 0);
 
-    $getuseridquery = "SELECT id FROM users WHERE username='" . $username . "';";
-    $getuserid = mysqli_query($con, $getuseridquery) or die("12: Get user ID query failed");
-
-    if (mysqli_num_rows($getuserid) != 1)
-    {
-        echo "13: User not found";
+    if ($userid <= 0 || $citynumber === "") {
+        echo "2: Missing required fields";
+        $con->close();
         exit();
     }
 
-    $row = mysqli_fetch_assoc($getuserid);
-    $userid = $row["id"];
+    // Validate city number to safely build the column name
+    $allowedCities = ["1", "2", "3", "4", "5"];
+    if (!in_array($citynumber, $allowedCities, true)) {
+        echo "15: Invalid city number";
+        $con->close();
+        exit();
+    }
 
-    $updateprogressquery = "UPDATE users SET city" . $citynumber . "score=" . $score . ", speedboosts=" . $speedboosts . " WHERE id=" . $userid . ";";
-    mysqli_query($con, $updateprogressquery) or die("14: Update progress query failed");
+    $cityColumn = "city" . $citynumber . "score";
 
-    echo "0"; // success
+    // Dynamic column name is safe here because city number was validated strictly
+    $query = "UPDATE users SET $cityColumn = ? WHERE id = ?";
+    $stmt = $con->prepare($query);
 
+    if (!$stmt) {
+        echo "3: Query preparation failed";
+        $con->close();
+        exit();
+    }
+
+    $stmt->bind_param("iii", $score, $userid);
+
+    if ($stmt->execute()) {
+        if ($stmt->affected_rows > 0) {
+            echo "0";
+        } else {
+            echo "4: No matching user found";
+        }
+    } else {
+        echo "5: Save progress failed";
+    }
+
+    $stmt->close();
+    $con->close();
 ?>
