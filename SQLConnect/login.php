@@ -10,7 +10,7 @@
         exit();
     }
 
-    $query = "SELECT id, firstname, lastname, username, password, pfp, highscore FROM users WHERE username = ?";
+    $query = "SELECT firstname, lastname, username, password, pfp, highscore, citynumber, currentscore FROM users WHERE username = ?";
     $stmt = $con->prepare($query);
 
     if (!$stmt) {
@@ -46,7 +46,9 @@
         "lastname" => $row["lastname"],
         "username" => $row["username"],
         "pfp" => (int)$row["pfp"],
-        "highscore" => (int)$row["highscore"]
+        "highscore" => (int)$row["highscore"],
+        "citynumber" => (int)$row["citynumber"],
+        "currentscore" => (int)$row["currentscore"]
     ];
 
     echo json_encode($response);
