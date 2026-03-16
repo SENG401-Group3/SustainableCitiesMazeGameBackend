@@ -31,7 +31,7 @@
         exit();
     }
 
-    $stmt->bind_param("iii", $score, $userid);
+    $stmt->bind_param("ii", $score, $userid);
 
     if ($stmt->execute()) {
         if ($stmt->affected_rows > 0) {
