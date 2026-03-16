@@ -45,7 +45,7 @@
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     echo "step5\n";
 
-    $insertQuery = "INSERT INTO users (firstname, lastname, username, password, highscore) VALUES (?, ?, ?, ?, 0)";
+    $insertQuery = "INSERT INTO users (firstname, lastname, username, password) VALUES (?, ?, ?, ?)";
     $stmt = $con->prepare($insertQuery);
 
     if (!$stmt) {
