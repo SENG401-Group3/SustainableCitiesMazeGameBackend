@@ -1,63 +1,67 @@
 <?php
-    // import database connection settings
     require_once 'db.php';
 
-    // remove whitespace and check for special characters to prevent SQL Injection
     $firstname = trim($_POST["firstname"] ?? "");
     $lastname = trim($_POST["lastname"] ?? "");
     $username = trim($_POST["username"] ?? "");
     $password = $_POST["password"] ?? "";
 
-    if ($firstname === "" || $lastname === "" || $username === "" || $password === "")
-    {
+    echo "step1\n";
+
+    if ($firstname === "" || $lastname === "" || $username === "" || $password === "") {
         echo "2: Missing required fields";
         $con->close();
         exit();
     }
 
-    // Check if username already exists
+    echo "step2\n";
+
     $checkQuery = "SELECT username FROM users WHERE username = ?";
-    $stmt = $con->prepare($checkQuery); 
+    $stmt = $con->prepare($checkQuery);
 
     if (!$stmt) {
-        echo "3: Query preparation failed";
+        echo "step3_failed_prepare_check";
         $con->close();
         exit();
     }
+
+    echo "step3\n";
 
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    if($result->num_rows > 0) {
+    if ($result->num_rows > 0) {
         echo "4: Username already exists";
         $stmt->close();
         $con->close();
         exit();
     }
+
     $stmt->close();
+    echo "step4\n";
 
     // Secure password hashing (modern method)
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    echo "step5\n";
 
-    // Insert new user 
-    // assumes score starts at 0
-    $insertuserquery = "INSERT INTO users (firstname, lastname, username, password, score)
-                        VALUES (?, ?, ?, ?, 0)";
-    $stmt = $con->prepare($insertuserquery);
+    $insertQuery = "INSERT INTO users (firstname, lastname, username, password, highscore) VALUES (?, ?, ?, ?, 0)";
+    $stmt = $con->prepare($insertQuery);
 
     if (!$stmt) {
-        echo "5: Insert preparation failed";
+        echo "step6_failed_prepare_insert";
         $con->close();
         exit();
     }
 
+    echo "step6\n";
+
     $stmt->bind_param("ssss", $firstname, $lastname, $username, $hashedPassword);
 
-    if($stmt->execute()) {
-        echo "0"; // success
+    if ($stmt->execute()) {
+        echo "success";
     } else {
-        echo "6: Insert user query failed";
+        echo "step7_failed_execute_insert";
     }
 
     $stmt->close();
