@@ -1,52 +1,69 @@
 <?php
+    require_once 'db.php';
 
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+    $firstname = trim($_POST["firstname"] ?? "");
+    $lastname = trim($_POST["lastname"] ?? "");
+    $username = trim($_POST["username"] ?? "");
+    $password = $_POST["password"] ?? "";
 
-// Check connection
-if (mysqli_connect_errno())
-{
-    echo "1: Connection failed";
-    exit();
-}
+    echo "step1\n";
 
-$firstname = $_POST["firstname"];
-$lastname = $_POST["lastname"];
-$username = $_POST["username"];
-$password = $_POST["password"];
+    if ($firstname === "" || $lastname === "" || $username === "" || $password === "") {
+        echo "2: Missing required fields";
+        $con->close();
+        exit();
+    }
 
-// Check if username already exists
-$namecheckquery = "SELECT username FROM users WHERE username='" . $username . "';";
+    echo "step2\n";
 
-$namecheck = mysqli_query($con, $namecheckquery) or die("2: Name check query failed");
+    $checkQuery = "SELECT username FROM users WHERE username = ?";
+    $stmt = $con->prepare($checkQuery);
 
-if (mysqli_num_rows($namecheck) > 0)
-{
-    echo "3: Username already exists";
-    exit();
-}
+    if (!$stmt) {
+        echo "step3_failed_prepare_check";
+        $con->close();
+        exit();
+    }
 
-// Secure password hashing (modern method)
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    echo "step3\n";
 
-// Insert new user
-$insertuserquery = "INSERT INTO users (firstname, lastname, username, password)
-                    VALUES ('" . $firstname . "', '" . $lastname . "', '" . $username . "', '" . $hashedPassword . "');";
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-mysqli_query($con, $insertuserquery) or die("4: Insert user query failed");
+    if ($result->num_rows > 0) {
+        echo "4: Username already exists";
+        $stmt->close();
+        $con->close();
+        exit();
+    }
 
-//initiailize city progress for new user
-$getuseridquery = "SELECT id FROM users WHERE username='" . $username . "';";
-$getuserid = mysqli_query($con, $getuseridquery) or die("5: Get user ID query failed");
+    $stmt->close();
+    echo "step4\n";
 
-if (mysqli_num_rows($getuserid) != 1)
-{
-    echo "6: User not found after insertion";
-    exit();
-}
+    // Secure password hashing (modern method)
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    echo "step5\n";
 
-$row = mysqli_fetch_assoc($getuserid);
-$userid = $row["id"];
+    $insertQuery = "INSERT INTO users (firstname, lastname, username, password) VALUES (?, ?, ?, ?)";
+    $stmt = $con->prepare($insertQuery);
 
-echo "0"; // success
+    if (!$stmt) {
+        echo "step6_failed_prepare_insert";
+        $con->close();
+        exit();
+    }
 
+    echo "step6\n";
+
+    $stmt->bind_param("ssss", $firstname, $lastname, $username, $hashedPassword);
+
+    if ($stmt->execute()) {
+        echo "success";
+    } else {
+        echo "step7_failed_execute_insert";
+    }
+
+    $stmt->close();
+    $con->close();
 ?>

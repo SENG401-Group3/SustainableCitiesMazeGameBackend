@@ -1,34 +1,58 @@
 <?php
+    require_once 'db.php';
 
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+    $username = trim($_POST["username"] ?? "");
+    $password = $_POST["password"] ?? "";
 
-if (mysqli_connect_errno())
-{
-    echo "1: Connection failed";
-    exit();
-}
+    if ($username === "" || $password === "") {
+        echo json_encode(["error" => "2: Missing username or password"]);
+        $con->close();
+        exit();
+    }
 
-$username = $_POST["username"];
-$password = $_POST["password"];
+    $query = "SELECT firstname, lastname, username, password, pfp, highscore, citynumber, currentscore FROM users WHERE username = ?";
+    $stmt = $con->prepare($query);
 
-$query = "SELECT password FROM users WHERE username='" . $username . "';";
-$result = mysqli_query($con, $query);
+    if (!$stmt) {
+        echo json_encode(["error" => "3: Failed to prepare statement"]);
+        $con->close();
+        exit();
+    }
 
-if (mysqli_num_rows($result) != 1)
-{
-    echo "7: No user found";
-    exit();
-}
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-$row = mysqli_fetch_assoc($result);
-$storedHash = $row["password"];
+    if ($result->num_rows !== 1) {
+        echo json_encode(["error" => "5: No user found"]);
+        $stmt->close();
+        $con->close();
+        exit();
+    }
 
-if (password_verify($password, $storedHash))
-{
-    echo "0";
-}
-else
-{
-    echo "9: Incorrect password";
-}
+    $row = $result->fetch_assoc();
+    $storedHash = $row["password"];
+
+    if (!password_verify($password, $storedHash)) {
+        echo json_encode(["error" => "6: Incorrect password"]);
+        $stmt->close();
+        $con->close();
+        exit();
+    }
+
+    $response = [
+        "id" => (int)$row["id"],
+        "firstname" => $row["firstname"],
+        "lastname" => $row["lastname"],
+        "username" => $row["username"],
+        "pfp" => (int)$row["pfp"],
+        "highscore" => (int)$row["highscore"],
+        "citynumber" => (int)$row["citynumber"],
+        "currentscore" => (int)$row["currentscore"]
+    ];
+
+    echo json_encode($response);
+
+    $stmt->close();
+    $con->close();
 ?>

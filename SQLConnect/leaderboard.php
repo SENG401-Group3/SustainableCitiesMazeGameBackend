@@ -1,31 +1,30 @@
 <?php
-
-	$con = mysqli_connect('localhost', 'root', 'root', 'sustainablitymaze');
-
-	// check connection
-	if (mysqli_connect_errno())
-	{
-		echo "1: Connection failed";
-		exit();
-	}
+	require_once 'db.php';
 
 	// fetch usernames and high scores from db
-	$gethighscoresquery = "SELECT username, highscore FROM users ORDER BY highscore DESC;";
-	$gethighscores = mysqli_query($con, $gethighscoresquery) or die("10: Get highscores query failed");
+	$gethighscoresquery = "SELECT username, highscore FROM users ORDER BY highscore DESC, username ASC";
+	$result = mysqli_query($con, $gethighscoresquery);;
 
+	if(!$result)
+	{
+		echo "7: Get leaderboard query failed";
+		$con->close();
+		exit();
+	}
 	// Process the result set
-	if ($gethighscores->num_rows > 0)
+	if ($result->num_rows > 0)
 	{
 		echo "0\n";
-		while($row = $gethighscores->fetch_assoc())
+		while($row = $result->fetch_assoc())
 		{
 			echo "Username: " . $row["username"] . "\tHigh score: " . $row["highscore"] . "\n";
 		}
 	}
 	else
 	{
-		echo "11: No results found";
-		exit();
+		echo "8: No results found";
 	}
+
+	$con->close();
 
 ?>

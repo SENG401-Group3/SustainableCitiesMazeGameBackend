@@ -1,25 +1,38 @@
 <?php
-header('Content-Type: application/json');
+    header('Content-Type: application/json');
+    require_once 'db.php';
 
-$con = mysqli_connect('localhost', 'root', '', 'sustainablitymaze');
+    $username = trim($_POST["username"] ?? "");
 
-if (mysqli_connect_errno()) {
-    echo json_encode(["error" => "Connection failed"]);
-    exit();
-}
+    if ($username === "") {
+        echo json_encode(["error" => "Missing username"]);
+        $con->close();
+        exit();
+    }
 
-$username = $_POST["username"];
+    $query = "SELECT id, firstname, lastname, username, score FROM users WHERE username = ?";
+    $stmt = $con->prepare($query);
 
-$getuser = "SELECT firstname, lastname, username, score FROM users WHERE username='" . mysqli_real_escape_string($con, $username) . "'";
+    if (!$stmt) {
+        echo json_encode(["error" => "Query preparation failed"]);
+        $con->close();
+        exit();
+    }
 
-$result = mysqli_query($con, $getuser);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-if (mysqli_num_rows($result) != 1) {
-    echo json_encode(["error" => "No user found"]);
-    exit();
-}
+    if ($result->num_rows !== 1) {
+        echo json_encode(["error" => "No user found"]);
+        $stmt->close();
+        $con->close();
+        exit();
+    }
 
-$row = mysqli_fetch_assoc($result);
+    $row = $result->fetch_assoc();
+    echo json_encode($row);
 
-echo json_encode($row);
+    $stmt->close();
+    $con->close();
 ?>
