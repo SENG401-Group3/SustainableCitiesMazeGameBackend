@@ -1,28 +1,26 @@
 <?php
     require_once 'db.php';
 
-    $userid = (int)($_POST["userid"] ?? 0);
-    $citynumber = trim($_POST["citynumber"] ?? "");
-    $score = (int)($_POST["score"] ?? 0);
+    $username = ($_POST["username"] ?? 0);
+    $highscore = (int)($_POST["highScore"] ?? 0);
+    $citynumber = (int)($_POST["cityNumber"] ?? 0);
+    $currentscore = (int)($_POST["currentScore"] ?? 0);
 
-    if ($userid <= 0 || $citynumber === "") {
+    if ($username === "" || $citynumber <= 0) {
         echo "2: Missing required fields";
         $con->close();
         exit();
     }
 
     // Validate city number to safely build the column name
-    $allowedCities = ["1", "2", "3", "4", "5"];
+    $allowedCities = [1, 2, 3, 4, 5];
     if (!in_array($citynumber, $allowedCities, true)) {
         echo "15: Invalid city number";
         $con->close();
         exit();
     }
 
-    $cityColumn = "city" . $citynumber . "score";
-
-    // Dynamic column name is safe here because city number was validated strictly
-    $query = "UPDATE users SET $cityColumn = ? WHERE id = ?";
+    $query = "UPDATE users SET highscore = ?, citynumber = ?, currentscore = ?, WHERE username = ?";
     $stmt = $con->prepare($query);
 
     if (!$stmt) {
@@ -31,7 +29,7 @@
         exit();
     }
 
-    $stmt->bind_param("ii", $score, $userid);
+    $stmt->bind_param("iiis", $highscore, $citynumber, $currentscore, $username);
 
     if ($stmt->execute()) {
         if ($stmt->affected_rows > 0) {
