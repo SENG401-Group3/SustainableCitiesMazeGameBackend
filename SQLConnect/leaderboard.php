@@ -2,29 +2,38 @@
 	require_once 'db.php';
 
 	// fetch usernames and high scores from db
-	$gethighscoresquery = "SELECT username, highscore FROM users ORDER BY highscore DESC, username ASC";
-	$result = mysqli_query($con, $gethighscoresquery);;
+	$query = "SELECT username, highscore FROM users ORDER BY highscore DESC, username ASC";
+	$stmt = $con->prepare($query);
 
-	if(!$result)
+	if(!$stmt)
 	{
 		echo "7: Get leaderboard query failed";
 		$con->close();
 		exit();
 	}
+
+	$stmt->execute();
+	$result = $stmt->get_result();
+
 	// Process the result set
 	if ($result->num_rows > 0)
 	{
 		echo "0\n";
 		while($row = $result->fetch_assoc())
 		{
-			echo "Username: " . $row["username"] . "\tHigh score: " . $row["highscore"] . "\n";
+			$response = [
+				"username" => $row["username"],
+				"highscore" => (int)$row["highscore"]
+			];
+			echo json_encode($response);
 		}
 	}
 	else
 	{
-		echo "8: No results found";
+		echo json_encode(["error" => "8: No users found"]);
 	}
 
+	$stmt->close();
 	$con->close();
 
 ?>
