@@ -10,7 +10,7 @@
         exit();
     }
 
-    $query = "SELECT id, firstname, lastname, username, score FROM users WHERE username = ?";
+    $query = "SELECT id, firstname, lastname, username, currentscore FROM users WHERE username = ?";
     $stmt = $con->prepare($query);
 
     if (!$stmt) {
