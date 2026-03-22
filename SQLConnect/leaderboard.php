@@ -7,7 +7,7 @@
 
 	if(!$stmt)
 	{
-		echo "7: Get leaderboard query failed";
+		echo json_encode(["error" => "7: Failed to prepare statement"]);
 		$con->close();
 		exit();
 	}
@@ -18,7 +18,6 @@
 	// Process the result set
 	if ($result->num_rows > 0)
 	{
-		echo "0\n";
 		while($row = $result->fetch_assoc())
 		{
 			$response = [
