@@ -7,7 +7,7 @@
 
 	if(!$stmt)
 	{
-		echo "7: Get leaderboard query failed";
+		echo json_encode(["error" => "7: Failed to prepare statement"]);
 		$con->close();
 		exit();
 	}
@@ -18,15 +18,19 @@
 	// Process the result set
 	if ($result->num_rows > 0)
 	{
-		echo "0\n";
+		$response = array(
+			"username" => array(),
+			"highscore" => array(),
+			"error" => null
+		);
+
 		while($row = $result->fetch_assoc())
 		{
-			$response = [
-				"username" => $row["username"],
-				"highscore" => (int)$row["highscore"]
-			];
-			echo json_encode($response);
+			$response["username"][] = $row["username"];
+			$response["highscore"][] = (int)$row["highscore"];
 		}
+
+		echo json_encode($response);
 	}
 	else
 	{
