@@ -1,6 +1,16 @@
 <?php
     require_once 'db.php';
 
+    // Allow itch.io to access this script
+    header("Access-Control-Allow-Origin: *"); 
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization");
+    
+    // Handle the "preflight" request from the browser
+    if ($_SERVER['REQUEST_REQUEST'] == 'OPTIONS') {
+        exit;
+    }
+
     $username = trim($_POST["username"] ?? "");
     $points = (int)($_POST["points"] ?? 0);
 

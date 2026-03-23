@@ -1,4 +1,13 @@
 <?php
+	header('Content-Type: application/json');
+	header("Access-Control-Allow-Origin: *"); 
+    header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type, Authorization");
+    
+    // Handle the "preflight" request from the browser
+    if ($_SERVER['REQUEST_REQUEST'] == 'OPTIONS') {
+        exit;
+    }
 	require_once 'db.php';
 
 	// fetch usernames and high scores from db
